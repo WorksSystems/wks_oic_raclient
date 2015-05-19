@@ -1,0 +1,30 @@
+1.Get the libstrophe source code.
+  
+  git clone https://github.com/strophe/libstrophe   
+
+2.Please make libexpat and openssl library first.
+
+3. Build libexpat as steps as below. For MT7683, please change toolchain, 
+for example:
+	export CROSS=/opt/buildroot-gcc492_arm_glibc/usr/bin/arm-linux-gcc
+
+
+
+export TARGETMACH=mipsel-linux
+export BUILDMACH=i686-pc-linux-gnu
+export CROSS=/opt/buildroot-gcc463/usr/bin/mipsel-linux
+export CC=${CROSS}-gcc
+export LD=${CROSS}-ld
+export AS=${CROSS}-as
+export CXX=${CROSS}-g++
+
+export PKG_CONFIG_PATH=/root/expat-2.1.0/
+export openssl_CFLAGS=-I/root/openssl-1.0.2-mips/include
+export NM=/opt/buildroot-gcc463/usr/bin/mipsel-linux-nm
+export openssl_LIBS="-lssl -lcrypto"
+export LDFLAGS="-fPIC -L/root/openssl-1.0.2-mips/"
+./bootstrap.sh
+./configure -host=$TARGETMACH
+// Remove "rpath" from Makefile
+
+

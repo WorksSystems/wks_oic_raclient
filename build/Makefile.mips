@@ -1,0 +1,105 @@
+.PHONY: all clean
+
+XMPPLIB   = ../include/libstrophe/
+OC_DIR = ../include/iotivity/resource/csdk
+
+OCLOGGER_DIR	= $(OC_DIR)/logger
+OC_LOG_DIR = $(OC_DIR)/../oc_logger
+OCRANDOM_DIR	= $(OC_DIR)/ocrandom
+OCSOCKET_DIR	= $(OC_DIR)/ocsocket
+LCOAP_DIR	= $(OC_DIR)/libcoap-4.1.1
+OCCOAP_DIR	= $(OC_DIR)/occoap
+OCTBSTACK_DIR	= $(OC_DIR)/stack
+EXTLIBS_DIR	= $(OC_DIR)/../../extlibs
+CJSON_DIR	= $(EXTLIBS_DIR)/cjson
+
+CJSON_SRC	= $(CJSON_DIR)
+
+OCLOGGER_INC	= $(OCLOGGER_DIR)/include
+OC_LOG_INC	= $(OC_LOG_DIR)/include
+OCRANDOM_INC	= $(OCRANDOM_DIR)/include
+OCSOCKET_INC	= $(OCSOCKET_DIR)/include
+LCOAP_INC	= $(LCOAP_DIR)
+OCCOAP_INC	= $(OCCOAP_DIR)/include
+OCTBSTACK_INC	= $(OCTBSTACK_DIR)/include
+CJSON_INC	= $(CJSON_DIR)
+XMPPLIB_INC	= $(XMPPLIB)
+XMPPLIB_INC_SRC = $(XMPPLIB)/src
+
+
+INC_DIRS	:= -I$(OCLOGGER_INC)
+INC_DIRS	+= -I$(OC_LOG_INC)
+INC_DIRS	+= -I$(OCRANDOM_INC)
+INC_DIRS	+= -I$(OCSOCKET_INC)
+INC_DIRS	+= -I$(LCOAP_INC)
+INC_DIRS	+= -I$(OCCOAP_INC)
+INC_DIRS	+= -I$(OCTBSTACK_INC)
+INC_DIRS	+= -I$(CJSON_INC)
+INC_DIRS        += -I$(XMPPLIB_INC)
+INC_DIRS        += -I$(XMPPLIB_INC_SRC)
+
+SRCPATH = ../source
+HDRPATH = ../include
+INFPATH = ../interface
+XMLPATH = $(INFPATH)/xml
+SQLPATH = $(INFPATH)/sqlite
+WARPATH = ../war
+LINUXPATH = $(WARPATH)/linux
+LINUXINCLUDE = $(LINUXPATH)/include
+
+BUILDPATH = ../build
+OBJPATH = $(BUILDPATH)/obj
+MIPS_OBJPATH = $(BUILDPATH)/obj_mips
+BINPATH = $(BUILDPATH)/bin
+LIBPATH = $(BUILDPATH)/lib
+MT7628_LIBPATH = $(BUILDPATH)/lib_mips/
+
+
+CC =  /opt/buildroot-gcc492_arm_glibc/usr/bin/arm-linux-gcc
+MT7628_CC = /opt/buildroot-gcc463/usr/bin/mipsel-linux-gcc
+CFLAGS = -O -Wall -fdata-sections -Wl,--gc-sections -Wl,-s -fno-exceptions -std=gnu99 $(INC_DIRS) 
+#-L$(OC_DIR)/linux/$(BUILD)
+DEFS = -DTB_LOG
+
+INCLUDES = -I$(HDRPATH)
+VPATH = $(SRCPATH)
+SRCS=$(wildcard $(SRCPATH)/*.c) 
+
+HEADERS=$(wildcard $(HDRPATH)/*.h)
+NOTDIRSRCS=$(notdir $(SRCS))
+OBJS = $(patsubst %.c,$(OBJPATH)/%.o,$(NOTDIRSRCS))
+MIPS_OBJS= $(patsubst %.c,$(MIPS_OBJPATH)/%.o,$(NOTDIRSRCS))
+
+
+
+LIBS = $(LIBPATH)/liboctbstack.a $(LIBPATH)/libstrophe.a $(LIBPATH)/libssl.a $(LIBPATH)/libcrypto.a  $(LIBPATH)/libexpat.a  $(LIBPATH)/libcoap.a  $(LIBPATH)/liboc_logger.a   -lpthread  -lm -lresolv
+
+MT7628_LIBS = $(MT7628_LIBPATH)/liboctbstack.a $(MT7628_LIBPATH)/libstrophe.a $(MT7628_LIBPATH)/libssl.a  $(MT7628_LIBPATH)/libcrypto.a  $(MT7628_LIBPATH)/libexpat.so.1.6.0  -lpthread  -lm
+
+
+
+all: wks_raclient
+      
+mt7688: mt7628
+
+mt7628: $(MIPS_OBJS)
+	@mkdir -p $(BINPATH)
+	$(MT7628_CC) -z muldefs  -o $(BINPATH)/wks_raclient-$@ $^ $(MT7628_LIBS)
+	@echo Compile MT7628/MT7688 WKS-OIC-RACLIENT successful....
+
+
+wks_raclient: $(OBJS)
+	@mkdir -p $(BINPATH)
+	$(CC) -z muldefs  -o $(BINPATH)/$@ $^ $(LIBS)
+	@echo Compile WKS-OIC-RACLIENT successful....
+
+$(OBJS): $(OBJPATH)/%.o: %.c
+	@mkdir -p $(OBJPATH)
+	$(CC) $(CFLAGS) -c -o $@  $< $(INCLUDES) $(DEFS)
+
+$(MIPS_OBJS): $(MIPS_OBJPATH)/%.o: %.c
+	@mkdir -p $(MIPS_OBJPATH)
+	$(MT7628_CC) $(CFLAGS) -c -o $@  $< $(INCLUDES) $(DEFS)
+
+clean:
+	rm -rf $(BINPATH) $(OBJPATH) $(MIPS_OBJPATH)
