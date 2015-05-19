@@ -2,7 +2,7 @@
 
 	Works System' agent code for OIC remote access client contributions are shared under the Apache 2.0 license
       
-	 This agent is used to support XEP-0047 basing on libstrophe % iotivity.  This agent support IBB responder accepts session and get session information, such as Sid/Block-size from IBB Initiator.
+	 This agent is used to support XEP-0047 basing on libstrophe & iotivity.  This agent support IBB responder accepts session and get session information, such as Sid/Block-size from IBB Initiator.
    
 	 There is no limitation for the length of the IBB stanza, and the block size can be negotiated and handled by the both peers.
 
