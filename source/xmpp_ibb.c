@@ -68,7 +68,7 @@ int XMPP_IBB_data_process(xmpp_conn_t * const conn, xmpp_stanza_t * const stanza
     result = base64_decode(ctx, intext, strlen(intext));
     printf("Decode result=%s\n", result);
 
-    sscanf(result, "%s%s%[^{]\n%s%s", szMethod, szUri, szHeader, szPayload);
+    sscanf(result, "%s%s%[^{]\n%s", szMethod, szUri, szHeader, szPayload);
 
     if((strcmp(szMethod, "PUT")!=0) &&  \
          (strcmp(szMethod, "POST")!=0))
